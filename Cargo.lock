@@ -10,6 +10,7 @@ dependencies = [
  "ctrlc",
  "mqtt",
  "serde",
+ "serde_json",
  "tokio",
  "toml",
  "tracing",
@@ -300,7 +301,7 @@ dependencies = [
 [[package]]
 name = "mqtt"
 version = "0.1.0"
-source = "git+https://github.com/heydabop/mqtt.git#fd47437965246fd4f8e072dfa808b9131e5969d7"
+source = "git+https://github.com/heydabop/mqtt.git#97586246a58c68642657f3fe6a061cec6f8b92c5"
 
 [[package]]
 name = "nix"
