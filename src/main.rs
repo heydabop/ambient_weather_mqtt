@@ -24,7 +24,7 @@ struct SensorConfig<'a> {
     pub device_class: Option<&'static str>,
     pub device: &'a HashMap<&'static str, &'static str>,
     pub state_topic: &'static str,
-    pub unit_of_measurement: Option<&'static str>,
+    pub unit_of_measurement: &'static str,
     pub state_class: &'static str,
 }
 
@@ -76,7 +76,20 @@ async fn main() {
             unique_id: "ambw_mqtt_outside_temp",
             device_class: Some("temperature"),
             state_topic: "homeassistant/sensor/ambientWeather/temperature/state",
-            unit_of_measurement: Some("°F"),
+            unit_of_measurement: "°F",
+            state_class: "measurement",
+            device: &device,
+        },
+    );
+    publish_sensor_config(
+        &mqtt_client,
+        "feelsLike",
+        &SensorConfig {
+            name: "Outside Feels Like",
+            unique_id: "ambw_mqtt_outside_feels",
+            device_class: Some("temperature"),
+            state_topic: "homeassistant/sensor/ambientWeather/feelsLike/state",
+            unit_of_measurement: "°F",
             state_class: "measurement",
             device: &device,
         },
@@ -89,7 +102,7 @@ async fn main() {
             unique_id: "ambw_mqtt_outside_hum",
             device_class: Some("humidity"),
             state_topic: "homeassistant/sensor/ambientWeather/humidity/state",
-            unit_of_measurement: Some("%"),
+            unit_of_measurement: "%",
             state_class: "measurement",
             device: &device,
         },
@@ -102,7 +115,7 @@ async fn main() {
             unique_id: "ambw_mqtt_outside_dew",
             device_class: Some("temperature"),
             state_topic: "homeassistant/sensor/ambientWeather/dewPoint/state",
-            unit_of_measurement: Some("°F"),
+            unit_of_measurement: "°F",
             state_class: "measurement",
             device: &device,
         },
@@ -115,7 +128,7 @@ async fn main() {
             unique_id: "ambw_mqtt_wind_chill",
             device_class: Some("temperature"),
             state_topic: "homeassistant/sensor/ambientWeather/windChill/state",
-            unit_of_measurement: Some("°F"),
+            unit_of_measurement: "°F",
             state_class: "measurement",
             device: &device,
         },
@@ -128,7 +141,7 @@ async fn main() {
             unique_id: "ambw_mqtt_wind_dir",
             device_class: None,
             state_topic: "homeassistant/sensor/ambientWeather/windDir/state",
-            unit_of_measurement: Some("°"),
+            unit_of_measurement: "°",
             state_class: "measurement",
             device: &device,
         },
@@ -141,7 +154,7 @@ async fn main() {
             unique_id: "ambw_mqtt_wind_speed",
             device_class: Some("wind_speed"),
             state_topic: "homeassistant/sensor/ambientWeather/windSpeed/state",
-            unit_of_measurement: Some("mph"),
+            unit_of_measurement: "mph",
             state_class: "measurement",
             device: &device,
         },
@@ -154,7 +167,7 @@ async fn main() {
             unique_id: "ambw_mqtt_wind_gust",
             device_class: Some("wind_speed"),
             state_topic: "homeassistant/sensor/ambientWeather/windGust/state",
-            unit_of_measurement: Some("mph"),
+            unit_of_measurement: "mph",
             state_class: "measurement",
             device: &device,
         },
@@ -167,7 +180,7 @@ async fn main() {
             unique_id: "ambw_mqtt_hourly_rain",
             device_class: Some("precipitation_intensity"),
             state_topic: "homeassistant/sensor/ambientWeather/rainHourly/state",
-            unit_of_measurement: Some("in/h"),
+            unit_of_measurement: "in/h",
             state_class: "measurement",
             device: &device,
         },
@@ -180,7 +193,7 @@ async fn main() {
             unique_id: "ambw_mqtt_daily_rain",
             device_class: Some("precipitation"),
             state_topic: "homeassistant/sensor/ambientWeather/rainDaily/state",
-            unit_of_measurement: Some("in"),
+            unit_of_measurement: "in",
             state_class: "total_increasing",
             device: &device,
         },
@@ -193,7 +206,7 @@ async fn main() {
             unique_id: "ambw_mqtt_weekly_rain",
             device_class: Some("precipitation"),
             state_topic: "homeassistant/sensor/ambientWeather/rainWeekly/state",
-            unit_of_measurement: Some("in"),
+            unit_of_measurement: "in",
             state_class: "total_increasing",
             device: &device,
         },
@@ -206,7 +219,7 @@ async fn main() {
             unique_id: "ambw_mqtt_monthyl_rain",
             device_class: Some("precipitation"),
             state_topic: "homeassistant/sensor/ambientWeather/rainMonthly/state",
-            unit_of_measurement: Some("in"),
+            unit_of_measurement: "in",
             state_class: "total_increasing",
             device: &device,
         },
@@ -219,7 +232,7 @@ async fn main() {
             unique_id: "ambw_mqtt_lifetime_rain",
             device_class: Some("precipitation"),
             state_topic: "homeassistant/sensor/ambientWeather/rainLifetime/state",
-            unit_of_measurement: Some("in"),
+            unit_of_measurement: "in",
             state_class: "total_increasing",
             device: &device,
         },
@@ -232,7 +245,7 @@ async fn main() {
             unique_id: "ambw_mqtt_solar_rad",
             device_class: Some("irradiance"),
             state_topic: "homeassistant/sensor/ambientWeather/solarRadiation/state",
-            unit_of_measurement: Some("W/m²"),
+            unit_of_measurement: "W/m²",
             state_class: "measurement",
             device: &device,
         },
@@ -245,7 +258,7 @@ async fn main() {
             unique_id: "ambw_mqtt_uv",
             device_class: None,
             state_topic: "homeassistant/sensor/ambientWeather/UV/state",
-            unit_of_measurement: None,
+            unit_of_measurement: "Index",
             state_class: "measurement",
             device: &device,
         },
@@ -258,7 +271,7 @@ async fn main() {
             unique_id: "ambw_mqtt_indoor_temp",
             device_class: Some("temperature"),
             state_topic: "homeassistant/sensor/ambientWeather/kitchenTemperature/state",
-            unit_of_measurement: Some("°F"),
+            unit_of_measurement: "°F",
             state_class: "measurement",
             device: &device,
         },
@@ -271,7 +284,7 @@ async fn main() {
             unique_id: "ambw_mqtt_indoor_hum",
             device_class: Some("humidity"),
             state_topic: "homeassistant/sensor/ambientWeather/kitchenHumidity/state",
-            unit_of_measurement: Some("%"),
+            unit_of_measurement: "%",
             state_class: "measurement",
             device: &device,
         },
@@ -284,7 +297,7 @@ async fn main() {
             unique_id: "ambw_mqtt_abs_press",
             device_class: Some("atmospheric_pressure"),
             state_topic: "homeassistant/sensor/ambientWeather/pressure/state",
-            unit_of_measurement: Some("hPa"),
+            unit_of_measurement: "hPa",
             state_class: "measurement",
             device: &device,
         },
@@ -297,7 +310,7 @@ async fn main() {
             unique_id: "ambw_mqtt_rel_press",
             device_class: Some("atmospheric_pressure"),
             state_topic: "homeassistant/sensor/ambientWeather/relativePressure/state",
-            unit_of_measurement: Some("hPa"),
+            unit_of_measurement: "hPa",
             state_class: "measurement",
             device: &device,
         },
@@ -390,6 +403,61 @@ pub async fn handle_weather_update(
         }
     } else {
         error!(key = "baromin", "missing value in params");
+    }
+
+    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f64>()) {
+        if let Some(Ok(rh)) = params.get("humidity").map(|w| w.parse::<f64>()) {
+            let heat_index_f = {
+                if temp_f < 80.0 {
+                    temp_f
+                } else {
+                    let steadman = 0.5 * (temp_f + 61.0 + (temp_f - 68.0) * 1.2 + rh * 0.094);
+                    let s_avg = (temp_f + steadman) / 2.0;
+                    if s_avg < 80.0 {
+                        steadman
+                    } else {
+                        let rothfusz = -42.379 + 2.04901523 * temp_f + 10.14333127 * rh
+                            - 0.22475541 * temp_f * rh
+                            - 0.00683783 * temp_f * temp_f
+                            - 0.05481717 * rh * rh
+                            + 0.00122874 * temp_f * temp_f * rh
+                            + 0.00085282 * temp_f * rh * rh
+                            - 0.00000199 * temp_f * temp_f * rh * rh;
+                        if rh < 13.0 && temp_f > 80.0 && temp_f < 112.0 {
+                            rothfusz
+                                - ((13.0 - rh) / 4.0)
+                                    * ((17.0 - (temp_f - 95.0).abs()) / 17.0).sqrt()
+                        } else if rh > 85.0 && temp_f > 80.0 && temp_f < 87.0 {
+                            rothfusz + ((rh - 85.0) / 10.0) * ((87.0 - temp_f) / 5.0)
+                        } else {
+                            rothfusz
+                        }
+                    }
+                }
+            };
+            let payload = format!("{:.1}", heat_index_f);
+            info!(topic = "feelsLike", payload, "publishing");
+            client.publish(
+                "homeassistant/sensor/ambientWeather/feelsLike/state",
+                &payload,
+                false,
+            )
+        }
+    }
+
+    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f32>()) {
+        if let Some(Ok(wind_mph)) = params.get("windspeedmph").map(|w| w.parse::<f32>()) {
+            if let Some(reported_wind_chill_f) = params.get("windchillf") {
+                if temp_f <= 50.0 && wind_mph > 3.0 {
+                    let wind_chill_f = 35.74 + (0.6215 * temp_f) - (35.75 * wind_mph.powf(0.16))
+                        + (0.4275 * temp_f * wind_mph.powf(0.16));
+                    info!(
+                        computed_wind_chill = format!("{:.1}", wind_chill_f),
+                        reported_wind_chill = reported_wind_chill_f
+                    );
+                }
+            }
+        }
     }
 
     Ok(StatusCode::OK)
