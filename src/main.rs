@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
+
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -332,7 +335,11 @@ async fn main() {
     }
 }
 
-#[allow(clippy::unused_async)]
+#[allow(
+    clippy::unused_async,
+    clippy::implicit_hasher,
+    clippy::missing_errors_doc
+)]
 pub async fn handle_weather_update(
     State(mqtt_client): State<AppState>,
     Query(params): Query<HashMap<String, String>>,
@@ -376,7 +383,7 @@ pub async fn handle_weather_update(
                     "homeassistant/sensor/ambientWeather/pressure/state",
                     &payload,
                     false,
-                )
+                );
             }
             Err(e) => {
                 error!(%e, val, key = "absbaromin", "unable to parse f32 from param");
@@ -395,7 +402,7 @@ pub async fn handle_weather_update(
                     "homeassistant/sensor/ambientWeather/relativePressure/state",
                     &payload,
                     false,
-                )
+                );
             }
             Err(e) => {
                 error!(%e, val, key = "baromin", "unable to parse f32 from param");
@@ -416,13 +423,13 @@ pub async fn handle_weather_update(
                     if s_avg < 80.0 {
                         steadman
                     } else {
-                        let rothfusz = -42.379 + 2.04901523 * temp_f + 10.14333127 * rh
-                            - 0.22475541 * temp_f * rh
-                            - 0.00683783 * temp_f * temp_f
-                            - 0.05481717 * rh * rh
-                            + 0.00122874 * temp_f * temp_f * rh
-                            + 0.00085282 * temp_f * rh * rh
-                            - 0.00000199 * temp_f * temp_f * rh * rh;
+                        let rothfusz = -42.379 + 2.049_015_23 * temp_f + 10.143_331_27 * rh
+                            - 0.224_755_41 * temp_f * rh
+                            - 0.006_837_83 * temp_f * temp_f
+                            - 0.054_817_17 * rh * rh
+                            + 0.001_228_74 * temp_f * temp_f * rh
+                            + 0.000_852_82 * temp_f * rh * rh
+                            - 0.000_001_99 * temp_f * temp_f * rh * rh;
                         if rh < 13.0 && temp_f > 80.0 && temp_f < 112.0 {
                             rothfusz
                                 - ((13.0 - rh) / 4.0)
@@ -435,13 +442,13 @@ pub async fn handle_weather_update(
                     }
                 }
             };
-            let payload = format!("{:.1}", heat_index_f);
+            let payload = format!("{heat_index_f:.1}");
             debug!(topic = "feelsLike", payload, "publishing");
             client.publish(
                 "homeassistant/sensor/ambientWeather/feelsLike/state",
                 &payload,
                 false,
-            )
+            );
         }
     }
 
@@ -452,7 +459,7 @@ pub async fn handle_weather_update(
                     let wind_chill_f = 35.74 + (0.6215 * temp_f) - (35.75 * wind_mph.powf(0.16))
                         + (0.4275 * temp_f * wind_mph.powf(0.16));
                     debug!(
-                        computed_wind_chill = format!("{:.1}", wind_chill_f),
+                        computed_wind_chill = format!("{wind_chill_f:.1}"),
                         reported_wind_chill = reported_wind_chill_f
                     );
                 }
@@ -473,13 +480,13 @@ fn publish_f32(
     if let Some(val) = params.get(key) {
         match val.parse::<f32>() {
             Ok(parsed) => {
-                let payload = format!("{:.1$}", parsed, precision);
+                let payload = format!("{parsed:.precision$}");
                 debug!(topic, payload, "publishing");
                 client.publish(
                     &format!("homeassistant/sensor/ambientWeather/{topic}/state"),
                     &payload,
                     false,
-                )
+                );
             }
             Err(e) => {
                 error!(%e, val, key, "unable to parse f32 from param");
