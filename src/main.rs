@@ -12,7 +12,7 @@ use std::{
     process::exit,
     sync::{Arc, Mutex},
 };
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 type AppState = Arc<Mutex<MqttClient>>;
 
@@ -337,7 +337,7 @@ pub async fn handle_weather_update(
     State(mqtt_client): State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<StatusCode, StatusCode> {
-    info!(?params, "incoming payload");
+    debug!(?params, "incoming payload");
 
     if params.get("ID") != Some(&String::from("local"))
         || params.get("PASSWORD") != Some(&String::from("key"))
@@ -371,7 +371,7 @@ pub async fn handle_weather_update(
         match val.parse::<f32>() {
             Ok(inhg) => {
                 let payload = format!("{:.1}", inhg * 33.86); //hPa
-                info!(topic = "pressure", payload, "publishing");
+                debug!(topic = "pressure", payload, "publishing");
                 client.publish(
                     "homeassistant/sensor/ambientWeather/pressure/state",
                     &payload,
@@ -390,7 +390,7 @@ pub async fn handle_weather_update(
         match val.parse::<f32>() {
             Ok(inhg) => {
                 let payload = format!("{:.1}", inhg * 33.86); //hPa
-                info!(topic = "relativePressure", payload, "publishing");
+                debug!(topic = "relativePressure", payload, "publishing");
                 client.publish(
                     "homeassistant/sensor/ambientWeather/relativePressure/state",
                     &payload,
@@ -436,7 +436,7 @@ pub async fn handle_weather_update(
                 }
             };
             let payload = format!("{:.1}", heat_index_f);
-            info!(topic = "feelsLike", payload, "publishing");
+            debug!(topic = "feelsLike", payload, "publishing");
             client.publish(
                 "homeassistant/sensor/ambientWeather/feelsLike/state",
                 &payload,
@@ -451,7 +451,7 @@ pub async fn handle_weather_update(
                 if temp_f <= 50.0 && wind_mph > 3.0 {
                     let wind_chill_f = 35.74 + (0.6215 * temp_f) - (35.75 * wind_mph.powf(0.16))
                         + (0.4275 * temp_f * wind_mph.powf(0.16));
-                    info!(
+                    debug!(
                         computed_wind_chill = format!("{:.1}", wind_chill_f),
                         reported_wind_chill = reported_wind_chill_f
                     );
@@ -474,7 +474,7 @@ fn publish_f32(
         match val.parse::<f32>() {
             Ok(parsed) => {
                 let payload = format!("{:.1$}", parsed, precision);
-                info!(topic, payload, "publishing");
+                debug!(topic, payload, "publishing");
                 client.publish(
                     &format!("homeassistant/sensor/ambientWeather/{topic}/state"),
                     &payload,
@@ -495,7 +495,7 @@ fn publish_i32(client: &MqttClient, params: &HashMap<String, String>, key: &str,
         match val.parse::<i32>() {
             Ok(parsed) => {
                 let payload = parsed.to_string();
-                info!(topic, payload, "publishing");
+                debug!(topic, payload, "publishing");
                 client.publish(
                     &format!("homeassistant/sensor/ambientWeather/{topic}/state"),
                     &payload,
@@ -513,7 +513,7 @@ fn publish_i32(client: &MqttClient, params: &HashMap<String, String>, key: &str,
 
 fn publish_sensor_config(client: &MqttClient, topic: &str, config: &SensorConfig) {
     let payload = serde_json::to_string(config).unwrap();
-    info!(topic, payload, "publishing config");
+    debug!(topic, payload, "publishing config");
     client.publish(
         &format!("homeassistant/sensor/ambientWeather/{topic}/config"),
         &payload,
