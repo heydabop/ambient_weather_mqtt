@@ -2,10 +2,10 @@
 #![allow(clippy::too_many_lines)]
 
 use axum::{
+    Router,
     extract::{Query, State},
     http::StatusCode,
     routing::get,
-    Router,
 };
 use mqtt::client::Client as MqttClient;
 use serde::{Deserialize, Serialize};
