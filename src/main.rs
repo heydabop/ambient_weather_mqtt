@@ -142,10 +142,10 @@ async fn main() {
         &SensorConfig {
             name: "Wind Dir",
             unique_id: "ambw_mqtt_wind_dir",
-            device_class: None,
+            device_class: Some("wind_direction"),
             state_topic: "homeassistant/sensor/ambientWeather/windDir/state",
             unit_of_measurement: "°",
-            state_class: "measurement",
+            state_class: "measurement_angle",
             device: &device,
         },
     );
