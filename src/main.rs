@@ -412,59 +412,57 @@ pub async fn handle_weather_update(
         error!(key = "baromin", "missing value in params");
     }
 
-    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f64>()) {
-        if let Some(Ok(rh)) = params.get("humidity").map(|w| w.parse::<f64>()) {
-            let heat_index_f = {
-                if temp_f < 80.0 {
-                    temp_f
+    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f64>())
+        && let Some(Ok(rh)) = params.get("humidity").map(|w| w.parse::<f64>())
+    {
+        let heat_index_f = {
+            if temp_f < 80.0 {
+                temp_f
+            } else {
+                let steadman = 0.5 * (temp_f + 61.0 + (temp_f - 68.0) * 1.2 + rh * 0.094);
+                let s_avg = f64::midpoint(temp_f, steadman);
+                if s_avg < 80.0 {
+                    steadman
                 } else {
-                    let steadman = 0.5 * (temp_f + 61.0 + (temp_f - 68.0) * 1.2 + rh * 0.094);
-                    let s_avg = (temp_f + steadman) / 2.0;
-                    if s_avg < 80.0 {
-                        steadman
+                    let rothfusz = -42.379 + 2.049_015_23 * temp_f + 10.143_331_27 * rh
+                        - 0.224_755_41 * temp_f * rh
+                        - 0.006_837_83 * temp_f * temp_f
+                        - 0.054_817_17 * rh * rh
+                        + 0.001_228_74 * temp_f * temp_f * rh
+                        + 0.000_852_82 * temp_f * rh * rh
+                        - 0.000_001_99 * temp_f * temp_f * rh * rh;
+                    if rh < 13.0 && temp_f > 80.0 && temp_f < 112.0 {
+                        rothfusz
+                            - ((13.0 - rh) / 4.0) * ((17.0 - (temp_f - 95.0).abs()) / 17.0).sqrt()
+                    } else if rh > 85.0 && temp_f > 80.0 && temp_f < 87.0 {
+                        rothfusz + ((rh - 85.0) / 10.0) * ((87.0 - temp_f) / 5.0)
                     } else {
-                        let rothfusz = -42.379 + 2.049_015_23 * temp_f + 10.143_331_27 * rh
-                            - 0.224_755_41 * temp_f * rh
-                            - 0.006_837_83 * temp_f * temp_f
-                            - 0.054_817_17 * rh * rh
-                            + 0.001_228_74 * temp_f * temp_f * rh
-                            + 0.000_852_82 * temp_f * rh * rh
-                            - 0.000_001_99 * temp_f * temp_f * rh * rh;
-                        if rh < 13.0 && temp_f > 80.0 && temp_f < 112.0 {
-                            rothfusz
-                                - ((13.0 - rh) / 4.0)
-                                    * ((17.0 - (temp_f - 95.0).abs()) / 17.0).sqrt()
-                        } else if rh > 85.0 && temp_f > 80.0 && temp_f < 87.0 {
-                            rothfusz + ((rh - 85.0) / 10.0) * ((87.0 - temp_f) / 5.0)
-                        } else {
-                            rothfusz
-                        }
+                        rothfusz
                     }
                 }
-            };
-            let payload = format!("{heat_index_f:.1}");
-            debug!(topic = "feelsLike", payload, "publishing");
-            client.publish(
-                "homeassistant/sensor/ambientWeather/feelsLike/state",
-                &payload,
-                false,
-            );
-        }
+            }
+        };
+        let payload = format!("{heat_index_f:.1}");
+        debug!(topic = "feelsLike", payload, "publishing");
+        client.publish(
+            "homeassistant/sensor/ambientWeather/feelsLike/state",
+            &payload,
+            false,
+        );
     }
 
-    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f32>()) {
-        if let Some(Ok(wind_mph)) = params.get("windspeedmph").map(|w| w.parse::<f32>()) {
-            if let Some(reported_wind_chill_f) = params.get("windchillf") {
-                if temp_f <= 50.0 && wind_mph > 3.0 {
-                    let wind_chill_f = 35.74 + (0.6215 * temp_f) - (35.75 * wind_mph.powf(0.16))
-                        + (0.4275 * temp_f * wind_mph.powf(0.16));
-                    debug!(
-                        computed_wind_chill = format!("{wind_chill_f:.1}"),
-                        reported_wind_chill = reported_wind_chill_f
-                    );
-                }
-            }
-        }
+    if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f32>())
+        && let Some(Ok(wind_mph)) = params.get("windspeedmph").map(|w| w.parse::<f32>())
+        && let Some(reported_wind_chill_f) = params.get("windchillf")
+        && temp_f <= 50.0
+        && wind_mph > 3.0
+    {
+        let wind_chill_f = 35.74 + (0.6215 * temp_f) - (35.75 * wind_mph.powf(0.16))
+            + (0.4275 * temp_f * wind_mph.powf(0.16));
+        debug!(
+            computed_wind_chill = format!("{wind_chill_f:.1}"),
+            reported_wind_chill = reported_wind_chill_f
+        );
     }
 
     Ok(StatusCode::OK)
