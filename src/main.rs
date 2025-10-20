@@ -478,6 +478,11 @@ fn publish_f32(
     if let Some(val) = params.get(key) {
         match val.parse::<f32>() {
             Ok(parsed) => {
+                if parsed < -40f32 {
+                    // no parameter should be under -40, indicates a bad read/payload?
+                    error!(val, key, "unexpected low value");
+                    return;
+                }
                 let payload = format!("{parsed:.precision$}");
                 debug!(topic, payload, "publishing");
                 client.publish(
@@ -499,6 +504,11 @@ fn publish_i32(client: &MqttClient, params: &HashMap<String, String>, key: &str,
     if let Some(val) = params.get(key) {
         match val.parse::<i32>() {
             Ok(parsed) => {
+                if parsed < -40 {
+                    // no parameter should be under -40, indicates a bad read/payload?
+                    error!(val, key, "unexpected low value");
+                    return;
+                }
                 let payload = parsed.to_string();
                 debug!(topic, payload, "publishing");
                 client.publish(
