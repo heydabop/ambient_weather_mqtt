@@ -377,13 +377,17 @@ pub async fn handle_weather_update(
     if let Some(val) = params.get("absbaromin") {
         match val.parse::<f32>() {
             Ok(inhg) => {
-                let payload = format!("{:.1}", inhg * 33.86); //hPa
-                debug!(topic = "pressure", payload, "publishing");
-                client.publish(
-                    "homeassistant/sensor/ambientWeather/pressure/state",
-                    &payload,
-                    false,
-                );
+                if inhg < 0f32 {
+                    error!(val = inhg, key = "pressure", "unexpected low value");
+                } else {
+                    let payload = format!("{:.1}", inhg * 33.86); //hPa
+                    debug!(topic = "pressure", payload, "publishing");
+                    client.publish(
+                        "homeassistant/sensor/ambientWeather/pressure/state",
+                        &payload,
+                        false,
+                    );
+                }
             }
             Err(e) => {
                 error!(%e, val, key = "absbaromin", "unable to parse f32 from param");
@@ -396,13 +400,17 @@ pub async fn handle_weather_update(
     if let Some(val) = params.get("baromin") {
         match val.parse::<f32>() {
             Ok(inhg) => {
-                let payload = format!("{:.1}", inhg * 33.86); //hPa
-                debug!(topic = "relativePressure", payload, "publishing");
-                client.publish(
-                    "homeassistant/sensor/ambientWeather/relativePressure/state",
-                    &payload,
-                    false,
-                );
+                if inhg < 0f32 {
+                    error!(val = inhg, key = "relativePressure", "unexpected low value");
+                } else {
+                    let payload = format!("{:.1}", inhg * 33.86); //hPa
+                    debug!(topic = "relativePressure", payload, "publishing");
+                    client.publish(
+                        "homeassistant/sensor/ambientWeather/relativePressure/state",
+                        &payload,
+                        false,
+                    );
+                }
             }
             Err(e) => {
                 error!(%e, val, key = "baromin", "unable to parse f32 from param");
@@ -442,13 +450,21 @@ pub async fn handle_weather_update(
                 }
             }
         };
-        let payload = format!("{heat_index_f:.1}");
-        debug!(topic = "feelsLike", payload, "publishing");
-        client.publish(
-            "homeassistant/sensor/ambientWeather/feelsLike/state",
-            &payload,
-            false,
-        );
+        if heat_index_f < -40f64 {
+            error!(
+                val = heat_index_f,
+                key = "feelsLike",
+                "unexpected low value"
+            );
+        } else {
+            let payload = format!("{heat_index_f:.1}");
+            debug!(topic = "feelsLike", payload, "publishing");
+            client.publish(
+                "homeassistant/sensor/ambientWeather/feelsLike/state",
+                &payload,
+                false,
+            );
+        }
     }
 
     if let Some(Ok(temp_f)) = params.get("tempf").map(|t| t.parse::<f32>())
